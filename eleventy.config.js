@@ -1,5 +1,7 @@
 const { DateTime } = require("luxon");
 const markdownItAnchor = require("markdown-it-anchor");
+const htmlmin = require("html-minifier");
+const CleanCSS = require("clean-css");
 
 const pluginRss = require("@11ty/eleventy-plugin-rss");
 const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
@@ -33,9 +35,26 @@ module.exports = function (eleventyConfig) {
 	});
 	eleventyConfig.addPlugin(pluginNavigation);
 	eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
-	eleventyConfig.addPlugin(pluginBundle);
+
+	eleventyConfig.addPlugin(pluginBundle, {
+		transforms: [
+			async function (content) {
+				if (this.type === "css") {
+					const cleanCss = new CleanCSS({}).minify(content);
+					return cleanCss.styles;
+				}
+				return content;
+			},
+		],
+	});
 
 	// Filters
+	// eleventyConfig.addFilter("cssmin", function (code) {
+	// 	console.log("code :>> ", code);
+
+	// 	return new CleanCSS({}).minify(code).styles;
+	// });
+
 	eleventyConfig.addFilter("readableDate", (dateObj, format, zone) => {
 		// Formatting tokens for Luxon: https://moment.github.io/luxon/#/formatting?id=table-of-tokens
 		return DateTime.fromJSDate(dateObj, { zone: zone || "utc" }).toFormat(
@@ -101,6 +120,20 @@ module.exports = function (eleventyConfig) {
 	// https://www.11ty.dev/docs/copy/#emulate-passthrough-copy-during-serve
 
 	// eleventyConfig.setServerPassthroughCopyBehavior("passthrough");
+
+	eleventyConfig.addTransform("htmlmin", function (content) {
+		// Prior to Eleventy 2.0: use this.outputPath instead
+		if (this.page.outputPath && this.page.outputPath.endsWith(".html")) {
+			let minified = htmlmin.minify(content, {
+				useShortDoctype: true,
+				removeComments: true,
+				collapseWhitespace: true,
+			});
+			return minified;
+		}
+
+		return content;
+	});
 
 	return {
 		// Control which files Eleventy will process
