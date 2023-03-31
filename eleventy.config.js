@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { DateTime } = require("luxon");
 const markdownItAnchor = require("markdown-it-anchor");
 const htmlmin = require("html-minifier");
@@ -8,6 +9,8 @@ const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 const pluginBundle = require("@11ty/eleventy-plugin-bundle");
 const pluginNavigation = require("@11ty/eleventy-navigation");
 const { EleventyHtmlBasePlugin } = require("@11ty/eleventy");
+
+console.log("NDOE_ENV :>> ", process.env.NODE_ENV);
 
 /** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 module.exports = function (eleventyConfig) {

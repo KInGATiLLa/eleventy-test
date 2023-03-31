@@ -1,46 +1,44 @@
 {
-	"name": "eleventy-base-blog",
-	"version": "8.0.0",
-	"description": "A starter repository for a blog web site using the Eleventy site generator.",
+	"name": "eleventy-test",
+	"version": "1.0.0",
+	"description": "A test repository for a blog web site using the Eleventy site generator.",
 	"scripts": {
-		"build": "npx @11ty/eleventy",
+		"build": "cross-env NODE_ENV=production npx @11ty/eleventy",
 		"build-ghpages": "npx @11ty/eleventy --pathprefix=/eleventy-base-blog/",
-		"start": "npx @11ty/eleventy --serve --quiet",
+		"start": "cross-env NODE_ENV=development npx @11ty/eleventy --serve --quiet",
 		"debug": "DEBUG=Eleventy* npx @11ty/eleventy",
 		"debugstart": "DEBUG=Eleventy* npx @11ty/eleventy --serve --quiet",
 		"benchmark": "DEBUG=Eleventy:Benchmark* npx @11ty/eleventy"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/11ty/eleventy-base-blog.git"
+		"url": "git://github.com/KInGATiLLa/eleventy-test.git"
 	},
 	"author": {
-		"name": "Zach Leatherman",
-		"email": "zachleatherman@gmail.com",
-		"url": "https://zachleat.com/"
+		"name": "Galt Khurelbaatar",
+		"email": "kh.galt53@gmail.com",
+		"url": "https://kgalt.com/"
 	},
 	"license": "MIT",
 	"engines": {
 		"node": ">=14"
 	},
-	"funding": {
-		"type": "opencollective",
-		"url": "https://opencollective.com/11ty"
-	},
 	"bugs": {
-		"url": "https://github.com/11ty/eleventy-base-blog/issues"
+		"url": "https://github.com/KInGATiLLa/eleventy-test/issues"
 	},
-	"homepage": "https://github.com/11ty/eleventy-base-blog#readme",
+	"homepage": "https://github.com/KInGATiLLa/eleventy-test#readme",
 	"devDependencies": {
 		"@11ty/eleventy": "^2.0.0",
 		"@11ty/eleventy-img": "^3.0.0",
 		"@11ty/eleventy-navigation": "^0.3.5",
-		"@11ty/eleventy-plugin-bundle": "^1.0.3",
+		"@11ty/eleventy-plugin-bundle": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^1.2.0",
 		"@11ty/eleventy-plugin-syntaxhighlight": "^4.2.0",
 		"clean-css": "^5.3.2",
+		"cross-env": "^7.0.3",
+		"dotenv": "^16.0.3",
 		"html-minifier": "^4.0.0",
-		"luxon": "^3.2.1",
-		"markdown-it-anchor": "^8.6.6"
+		"luxon": "^3.3.0",
+		"markdown-it-anchor": "^8.6.7"
 	}
 }
