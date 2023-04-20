@@ -1,31 +1,41 @@
 require("dotenv").config();
 const { DateTime } = require("luxon");
-const markdownItAnchor = require("markdown-it-anchor");
-const htmlmin = require("html-minifier");
 const CleanCSS = require("clean-css");
-
+const htmlmin = require("html-minifier");
+const markdownItAnchor = require("markdown-it-anchor");
+/*
+Eleventy plugins
+*/
 const pluginRss = require("@11ty/eleventy-plugin-rss");
 const pluginSyntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 const pluginBundle = require("@11ty/eleventy-plugin-bundle");
 const pluginNavigation = require("@11ty/eleventy-navigation");
 const { EleventyHtmlBasePlugin } = require("@11ty/eleventy");
+/*
+PostCSS Tailwindcss
+*/
+const postcss = require("postcss");
+const postcssImport = require("postcss-import");
+const tailwindcss = require("tailwindcss");
+const tailwindcssNesting = require("tailwindcss/nesting");
+const autoprefixer = require("autoprefixer");
 
-console.log("NDOE_ENV :>> ", process.env.NODE_ENV);
+const prod = process.env.NODE_ENV === "production";
 
 /** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 module.exports = function (eleventyConfig) {
 	// Copy the contents of the `public` folder to the output folder
 	// For example, `./public/css/` ends up in `_site/css/`
-	eleventyConfig.addPassthroughCopy({
-		"./public/": "/",
-		"./node_modules/prismjs/themes/prism-okaidia.css": "/css/prism-okaidia.css",
-	});
+	// eleventyConfig.addPassthroughCopy({
+	// 	"./public/": "/assets/",
+	// 	"./node_modules/prismjs/themes/prism-okaidia.css": "/css/prism-okaidia.css",
+	// });
 
 	// Run Eleventy when these files change:
 	// https://www.11ty.dev/docs/watch-serve/#add-your-own-watch-targets
 
 	// Watch content images for the image pipeline.
-	eleventyConfig.addWatchTarget("content/**/*.{svg,webp,png,jpeg}");
+	eleventyConfig.addWatchTarget("content/**/*.{svg,gif,webp,png,jpeg}");
 
 	// App plugins
 	eleventyConfig.addPlugin(require("./eleventy.config.drafts.js"));
@@ -40,12 +50,30 @@ module.exports = function (eleventyConfig) {
 	eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
 
 	eleventyConfig.addPlugin(pluginBundle, {
+		toFileDirectory: "assets/css",
 		transforms: [
 			async function (content) {
 				if (this.type === "css") {
-					const cleanCss = new CleanCSS({}).minify(content);
-					return cleanCss.styles;
+					const { css } = await postcss([
+						postcssImport({
+							path: ["./public/css", "./node_modules"],
+						}),
+						tailwindcssNesting,
+						tailwindcss,
+						autoprefixer,
+					]).process(content, {
+						from: this.page.inputPath,
+						to: null,
+					});
+					if (prod) {
+						const { styles } = new CleanCSS({}).minify(css);
+						return styles;
+					}
+					return css;
 				}
+				// if (prod && this.type === "js") {
+
+				// }
 				return content;
 			},
 		],
@@ -124,19 +152,20 @@ module.exports = function (eleventyConfig) {
 
 	// eleventyConfig.setServerPassthroughCopyBehavior("passthrough");
 
-	eleventyConfig.addTransform("htmlmin", function (content) {
-		// Prior to Eleventy 2.0: use this.outputPath instead
-		if (this.page.outputPath && this.page.outputPath.endsWith(".html")) {
-			let minified = htmlmin.minify(content, {
-				useShortDoctype: true,
-				removeComments: true,
-				collapseWhitespace: true,
-			});
-			return minified;
-		}
-
-		return content;
-	});
+	if (prod) {
+		eleventyConfig.addTransform("htmlmin", function (content) {
+			// Prior to Eleventy 2.0: use this.outputPath instead
+			if (this.page.outputPath && this.page.outputPath.endsWith(".html")) {
+				let minified = htmlmin.minify(content, {
+					useShortDoctype: true,
+					removeComments: true,
+					collapseWhitespace: true,
+				});
+				return minified;
+			}
+			return content;
+		});
+	}
 
 	return {
 		// Control which files Eleventy will process

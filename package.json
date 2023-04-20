@@ -4,11 +4,13 @@
 	"description": "A test repository for a blog web site using the Eleventy site generator.",
 	"scripts": {
 		"build": "cross-env NODE_ENV=production npx @11ty/eleventy",
+		"preview": "cross-env NODE_ENV=production npx @11ty/eleventy --serve --quiet",
 		"build-ghpages": "npx @11ty/eleventy --pathprefix=/eleventy-base-blog/",
 		"start": "cross-env NODE_ENV=development npx @11ty/eleventy --serve --quiet",
-		"debug": "DEBUG=Eleventy* npx @11ty/eleventy",
-		"debugstart": "DEBUG=Eleventy* npx @11ty/eleventy --serve --quiet",
-		"benchmark": "DEBUG=Eleventy:Benchmark* npx @11ty/eleventy"
+		"debug": "cross-env DEBUG=Eleventy* npx @11ty/eleventy",
+		"clean": "rm -rf _site/",
+		"debugstart": "cross-env DEBUG=Eleventy* npx @11ty/eleventy --serve --quiet",
+		"benchmark": "cross-env DEBUG=Eleventy:Benchmark* npx @11ty/eleventy"
 	},
 	"repository": {
 		"type": "git",
@@ -28,17 +30,21 @@
 	},
 	"homepage": "https://github.com/KInGATiLLa/eleventy-test#readme",
 	"devDependencies": {
-		"@11ty/eleventy": "^2.0.0",
-		"@11ty/eleventy-img": "^3.0.0",
+		"@11ty/eleventy": "^2.0.1",
+		"@11ty/eleventy-img": "^3.1.0",
 		"@11ty/eleventy-navigation": "^0.3.5",
 		"@11ty/eleventy-plugin-bundle": "^1.0.4",
 		"@11ty/eleventy-plugin-rss": "^1.2.0",
-		"@11ty/eleventy-plugin-syntaxhighlight": "^4.2.0",
+		"@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
+		"autoprefixer": "^10.4.14",
 		"clean-css": "^5.3.2",
 		"cross-env": "^7.0.3",
 		"dotenv": "^16.0.3",
 		"html-minifier": "^4.0.0",
 		"luxon": "^3.3.0",
-		"markdown-it-anchor": "^8.6.7"
+		"markdown-it-anchor": "^8.6.7",
+		"postcss": "^8.4.23",
+		"postcss-import": "^15.1.0",
+		"tailwindcss": "^3.3.1"
 	}
 }
