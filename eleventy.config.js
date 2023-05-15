@@ -22,11 +22,11 @@ const autoprefixer = require("autoprefixer");
 
 const prod = process.env.NODE_ENV === "production";
 
-/** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
-module.exports = function (eleventyConfig) {
+/** @param {import("@11ty/eleventy").UserConfig} config */
+module.exports = function (config) {
 	// Copy the contents of the `public` folder to the output folder
 	// For example, `./public/css/` ends up in `_site/css/`
-	// eleventyConfig.addPassthroughCopy({
+	// config.addPassthroughCopy({
 	// 	"./public/": "/assets/",
 	// 	"./node_modules/prismjs/themes/prism-okaidia.css": "/css/prism-okaidia.css",
 	// });
@@ -35,21 +35,21 @@ module.exports = function (eleventyConfig) {
 	// https://www.11ty.dev/docs/watch-serve/#add-your-own-watch-targets
 
 	// Watch content images for the image pipeline.
-	eleventyConfig.addWatchTarget("content/**/*.{svg,gif,webp,png,jpeg}");
+	config.addWatchTarget("content/**/*.{svg,gif,webp,png,jpeg}");
 
 	// App plugins
-	eleventyConfig.addPlugin(require("./eleventy.config.drafts.js"));
-	eleventyConfig.addPlugin(require("./eleventy.config.images.js"));
+	config.addPlugin(require("./eleventy.config.drafts.js"));
+	config.addPlugin(require("./eleventy.config.images.js"));
 
 	// Official plugins
-	eleventyConfig.addPlugin(pluginRss);
-	eleventyConfig.addPlugin(pluginSyntaxHighlight, {
+	config.addPlugin(pluginRss);
+	config.addPlugin(pluginSyntaxHighlight, {
 		preAttributes: { tabindex: 0 },
 	});
-	eleventyConfig.addPlugin(pluginNavigation);
-	eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
+	config.addPlugin(pluginNavigation);
+	config.addPlugin(EleventyHtmlBasePlugin);
 
-	eleventyConfig.addPlugin(pluginBundle, {
+	config.addPlugin(pluginBundle, {
 		toFileDirectory: "assets/css",
 		transforms: [
 			async function (content) {
@@ -80,26 +80,26 @@ module.exports = function (eleventyConfig) {
 	});
 
 	// Filters
-	// eleventyConfig.addFilter("cssmin", function (code) {
+	// config.addFilter("cssmin", function (code) {
 	// 	console.log("code :>> ", code);
 
 	// 	return new CleanCSS({}).minify(code).styles;
 	// });
 
-	eleventyConfig.addFilter("readableDate", (dateObj, format, zone) => {
+	config.addFilter("readableDate", (dateObj, format, zone) => {
 		// Formatting tokens for Luxon: https://moment.github.io/luxon/#/formatting?id=table-of-tokens
 		return DateTime.fromJSDate(dateObj, { zone: zone || "utc" }).toFormat(
 			format || "dd LLLL yyyy"
 		);
 	});
 
-	eleventyConfig.addFilter("htmlDateString", (dateObj) => {
+	config.addFilter("htmlDateString", (dateObj) => {
 		// dateObj input: https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#valid-date-string
 		return DateTime.fromJSDate(dateObj, { zone: "utc" }).toFormat("yyyy-LL-dd");
 	});
 
 	// Get the first `n` elements of a collection.
-	eleventyConfig.addFilter("head", (array, n) => {
+	config.addFilter("head", (array, n) => {
 		if (!Array.isArray(array) || array.length === 0) {
 			return [];
 		}
@@ -111,12 +111,12 @@ module.exports = function (eleventyConfig) {
 	});
 
 	// Return the smallest number argument
-	eleventyConfig.addFilter("min", (...numbers) => {
+	config.addFilter("min", (...numbers) => {
 		return Math.min.apply(null, numbers);
 	});
 
 	// Return all the tags used in a collection
-	eleventyConfig.addFilter("getAllTags", (collection) => {
+	config.addFilter("getAllTags", (collection) => {
 		let tagSet = new Set();
 		for (let item of collection) {
 			(item.data.tags || []).forEach((tag) => tagSet.add(tag));
@@ -124,14 +124,38 @@ module.exports = function (eleventyConfig) {
 		return Array.from(tagSet);
 	});
 
-	eleventyConfig.addFilter("filterTagList", function filterTagList(tags) {
+	config.addFilter("filterTagList", function filterTagList(tags) {
 		return (tags || []).filter(
 			(tag) => ["all", "nav", "post", "posts"].indexOf(tag) === -1
 		);
 	});
 
+	config.addFilter("filterTagList", function filterTagList(tags) {
+		return (tags || []).filter(
+			(tag) => ["all", "nav", "post", "posts"].indexOf(tag) === -1
+		);
+	});
+
+	config.addFilter("log", function log(...items) {
+		// console.log("this.page :>> ", this.page);
+		// console.log("this.eleventy :>> ", this.eleventy);
+
+		return console.log(items);
+	});
+
+	config.addFilter("json", function json(items) {
+		// console.log("this.page :>> ", this.page);
+		// console.log("this.eleventy :>> ", this.eleventy);
+
+		return `
+			<pre>
+				${JSON.stringify(items, null, 2)}
+			</pre>
+		`;
+	});
+
 	// Customize Markdown library settings:
-	eleventyConfig.amendLibrary("md", (mdLib) => {
+	config.amendLibrary("md", (mdLib) => {
 		mdLib.use(markdownItAnchor, {
 			permalink: markdownItAnchor.permalink.ariaHidden({
 				placement: "after",
@@ -140,7 +164,7 @@ module.exports = function (eleventyConfig) {
 				ariaHidden: false,
 			}),
 			level: [1, 2, 3, 4],
-			slugify: eleventyConfig.getFilter("slugify"),
+			slugify: config.getFilter("slugify"),
 		});
 	});
 
@@ -150,10 +174,10 @@ module.exports = function (eleventyConfig) {
 	// to emulate the file copy on the dev server. Learn more:
 	// https://www.11ty.dev/docs/copy/#emulate-passthrough-copy-during-serve
 
-	// eleventyConfig.setServerPassthroughCopyBehavior("passthrough");
+	// config.setServerPassthroughCopyBehavior("passthrough");
 
 	if (prod) {
-		eleventyConfig.addTransform("htmlmin", function (content) {
+		config.addTransform("htmlmin", function (content) {
 			// Prior to Eleventy 2.0: use this.outputPath instead
 			if (this.page.outputPath && this.page.outputPath.endsWith(".html")) {
 				let minified = htmlmin.minify(content, {
@@ -183,7 +207,7 @@ module.exports = function (eleventyConfig) {
 			input: "content", // default: "."
 			includes: "../_includes", // default: "_includes"
 			data: "../_data", // default: "_data"
-			output: "_site",
+			output: "dist",
 		},
 
 		// -----------------------------------------------------------------

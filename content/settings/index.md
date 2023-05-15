@@ -1,10 +1,13 @@
 ---
 layout: layouts/base.njk
 eleventyNavigation:
-  key: Social
-  order: 4
+	key: Settings
+	title: Settings
+	# order: 4
 ---
 
-# My social
+# My settings
 
-This is social page
+This is settings page
+
+[Go to profile]('/settings/profile/')

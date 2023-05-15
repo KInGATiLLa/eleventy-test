@@ -30,7 +30,7 @@ My third time looking at this, and finally, a simple end-to-end answer:
 
 ### .eleventy.ts
 
-```js
+```ts
 // must be module.exports, not export defult.
 module.exports = function (eleventyConfig: any) {
   eleventyConfig.addExtension('11ty.tsx', {
